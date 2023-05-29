@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.340">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Previsão de Séries Temporais</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Previsão de Séries Temporais</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Introdução</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./favorita_sales.html" rel="" target="">
+ <span class="menu-text">Previsão de demanda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html" rel="" target="">
+ <span class="menu-text">Sobre</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#previsão-de-séries-temporais" id="toc-previsão-de-séries-temporais" class="nav-link active" data-scroll-target="#previsão-de-séries-temporais"><strong>Previsão de séries temporais</strong></a></li>
+  <li><a href="#modelos-arima" id="toc-modelos-arima" class="nav-link" data-scroll-target="#modelos-arima"><strong>Modelos ARIMA</strong></a>
+  <ul class="collapse">
+  <li><a href="#testes-de-estacionariedade" id="toc-testes-de-estacionariedade" class="nav-link" data-scroll-target="#testes-de-estacionariedade">Testes de estacionariedade</a></li>
+  <li><a href="#procedimento-box-jenkins" id="toc-procedimento-box-jenkins" class="nav-link" data-scroll-target="#procedimento-box-jenkins">Procedimento Box &amp; Jenkins:</a></li>
+  <li><a href="#determinação-do-parâmetros-ar-e-ma" id="toc-determinação-do-parâmetros-ar-e-ma" class="nav-link" data-scroll-target="#determinação-do-parâmetros-ar-e-ma">Determinação do parâmetros AR e MA</a></li>
+  </ul></li>
+  <li><a href="#divisão-entre-amostra-de-treino-e-teste" id="toc-divisão-entre-amostra-de-treino-e-teste" class="nav-link" data-scroll-target="#divisão-entre-amostra-de-treino-e-teste">Divisão entre amostra de treino e teste</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+<!--
+
+
+::: {.cell}
+::: {.cell-output .cell-output-stdout}
+```
+python:         C:/Users/Alexandre/anaconda3/python.exe
+libpython:      C:/Users/Alexandre/anaconda3/python39.dll
+pythonhome:     C:/Users/Alexandre/anaconda3
+version:        3.9.13 (main, Aug 25 2022, 23:51:50) [MSC v.1916 64 bit (AMD64)]
+Architecture:   64bit
+numpy:          C:/Users/Alexandre/anaconda3/Lib/site-packages/numpy
+numpy_version:  1.23.5
+
+NOTE: Python version was forced by RETICULATE_PYTHON
+```
+:::
+:::
+
+-->
+<section id="previsão-de-séries-temporais" class="level2">
+<h2 class="anchored" data-anchor-id="previsão-de-séries-temporais"><strong>Previsão de séries temporais</strong></h2>
+<p>Primeiramente, a partir de uma perscpectiva analítica de dados, vamos classificar uma série temporal como dados indexados no tempo. Podendo ser s´ries de peços, PIB, inflação, desemprego, índices de atividade econômica, etc.</p>
+<p>Em <strong>econometria</strong> (ramo da estatística responsável pelo estudo de dados econômicos e financeiros) <strong>de séries temporais</strong> temos:</p>
+<ul>
+<li>Desenvolvimento de modelos para inferência e previsão;</li>
+<li>Previsão como mecanismo de redução de <strong>incertezas</strong>;</li>
+<li>Instrumento de apoio na tomada de decisão.</li>
+</ul>
+<p><strong><em>O futuro é incerto e a medida que criamos cenários prováveis para ele, temos maior assertividade na tomada de decisão. Quanto mais acurado o modelo, melhor a decisão.</em></strong></p>
+<hr>
+<p>Os modelos econométricos são modelos de equações de diferenças. Desejamos explicar uma determinada variável a partir dos seus próprios valores passados, pelo tempo e outras variáveis que podem influenciá-la.</p>
+<p>Nesses modelos, temos a hipótese de dependência temporal, ou seja, pressupomos que o passado influencia o futuro. E a partir desse pressuposto construímos uma representação matemática que explique essa relação, o que chamamos de modelo estatístico com <strong>componente estocástico</strong> (com variável aleatória).</p>
+<div class="card border-info mb-3">
+<div class="card-header bg-info text-white">
+O que é um componente estocástico?
+</div>
+<div class="card-body text-justify">
+Em termos simples é quando definimos uma variável aleatória que tenha dependência no tempo. Ainda, se essa v.a. é indexada no tempo, chamamos de <strong>processo estocástico</strong>.
+</div>
+</div>
+<p>Estrutura de mapeamento de séries temporais por eq. diferenças:</p>
+<p><span class="math display">\[Yt = f (Yt−1, Yt−2, . . . , Yt−p,t, X1,t−1, . . . , X2,t−1, . . . , ϵt, ϵt−1, . . .)\]</span></p>
+</section>
+<section id="modelos-arima" class="level2">
+<h2 class="anchored" data-anchor-id="modelos-arima"><strong>Modelos ARIMA</strong></h2>
+<p>O modelo ARIMA (AutoRegressive Integrated Moving Average) é um modelo de previsão de séries temporais que descreve a relação entre uma variável dependente e suas observações passadas, bem como seus erros de previsão passados. A sigla ARIMA é composta pelas iniciais de suas três componentes: AR (AutoRegressivo), I (Integrated) e MA (Média Móvel).</p>
+<ul>
+<li><p>AutoRegressivo (AR): a componente AR do modelo ARIMA usa a relação linear entre uma variável e seus valores passados para prever seus valores futuros. O termo “auto” refere-se ao fato de que a variável é regredida contra si mesma. A ordem do modelo AR é determinada pelo número de lags passados usados na regressão. Por exemplo, um modelo AR(1) usa apenas um lag passado, enquanto um modelo AR(2) usa dois lags passados.</p></li>
+<li><p>Integrado (I): a componente I do modelo ARIMA é responsável por diferenciar a série temporal para torná-la estacionária. Uma série temporal é considerada estacionária se suas propriedades estatísticas, como média e variância, permanecem constantes ao longo do tempo. A diferenciação pode ser feita uma ou mais vezes, dependendo da estacionariedade da série.</p></li>
+<li><p>Média Móvel (MA): a componente MA do modelo ARIMA usa a relação linear entre uma variável e seus erros de previsão passados para prever seus valores futuros. O termo “média móvel” refere-se ao fato de que a variável é regredida contra uma média móvel dos seus erros de previsão passados. A ordem do modelo MA é determinada pelo número de erros de previsão passados usados na regressão. Por exemplo, um modelo MA(1) usa apenas um erro de previsão passado, enquanto um modelo MA(2) usa dois erros de previsão passados.</p></li>
+</ul>
+<p>Assim, o modelo ARIMA é uma combinação dessas três componentes, AR, I e MA, que são usadas em conjunto para prever valores futuros de uma série temporal. A ordem de cada componente é representada por um conjunto de três parâmetros (p, d, q), que correspondem ao número de lags da componente AR (p), o número de diferenciações da componente I (d), e o número de erros de previsão da componente MA (q), respectivamente.</p>
+<p>Resumidamente estipular três características principais dos modelos ARIMA:</p>
+<ol type="1">
+<li>Técnica estatística baseada em equações de diferenças;<br>
+</li>
+<li>Robusta para séries temporais com diferentes dinâmicas, ou seja, distintos tipos de séries temporais;<br>
+</li>
+<li>Condição restritiva para estabilidade: as séries temporais tem de ser <strong>estacionárias</strong>.</li>
+</ol>
+<p><em>Também existem os modelos ARMAX, que incluem variáveis exógenas</em></p>
+<div class="card border-info mb-3">
+<div class="card-header bg-info text-white">
+O que é estacionariedade?
+</div>
+<div class="card-body text-justify">
+De forma simplificada, séries estacionárias são séries cujos momentos estatísticos (média, variância e covariância) são constantes ao longo do tempo.
+</div>
+</div>
+<p><br></p>
+<p>Notação: <span class="math display">\[{Yt}, t = 1,2,...,n\]</span></p>
+<p>Série Yt, com média e variância finitos, é <strong>covariância estacionária</strong> se:</p>
+<p><span class="math inline">\(E(yt) = E(yt−s ) = µ → média\)</span><br>
+Ou seja, o valor médio é constante ao longo tempo.</p>
+<p><span class="math inline">\(E[(yt − µ)²] = E[(yt−s − µ)²] = σ² y → variância\)</span><br>
+Ou seja, a variânvia é constante ao longo do tempo.</p>
+<p><span class="math inline">\(E[(yt − µ)(yt−s − µ)] = E[(yt−j − µ)(yt−j−s − µ)] = γs → covariância\)</span><br>
+A covariância, ou autocovariância nesse caso, é constante ao longo do tempo.</p>
+<p>µ, σ2 y , γs → constantes e ∀ t e t − s.</p>
+<p>Séries com tendência, por exemplo, são não estacionárias (pois sua média muda com o tempo, seja para baixo com tendência de queda ou para cima com tendência de aumento).</p>
+<section id="testes-de-estacionariedade" class="level3">
+<h3 class="anchored" data-anchor-id="testes-de-estacionariedade">Testes de estacionariedade</h3>
+<p>Os testes de estacionariedade, também chamados de teste de raíz unitária, nos trará a identificação da série quanto à estacionariedade. Caso a série não seja, teremos de realizar uma transformação.</p>
+<ul>
+<li>Testa-se <span class="math inline">\(H0: a = 1\)</span> em <span class="math inline">\(Yt = ayt-1 + ϵt\)</span> ~ <span class="math inline">\(RB(0,σ²)\)</span></li>
+<li>Se a raíz for igual a 1, a série possui tendência, é não estacionária e portanto, o processo é explosivo (não estável).</li>
+<li>Utilizamos o teste Dickey-Fuller Aumentado (ADF), clássico na literatura.</li>
+</ul>
+<p>Existem três especificações do teste ADF:</p>
+<ol type="1">
+<li>Sem intercepto e sem tendência (none);</li>
+<li>Com intercepto (drift);</li>
+<li>Com intercepto e tendência (trend).</li>
+</ol>
+<p>Aplicaremos os três teste e veremos se há convergência de rejeição da hipótese nula no resultado.</p>
+<p>Caso não haja rejeição da hipótese nula, ou seja, caso a série seja não estacionária, teremos que realizar uma transformação usando diferenciação:</p>
+<p><span class="math display">\[∆yt−1 = yt − yt−1\]</span></p>
+<p>Se <span class="math inline">\(∆yt\)</span> é estacionária após a primeira diferenciação, temos que I(1): integrada de ordem 1;</p>
+<p>Se após a primeira diferenciação a série ainda apresenta tendência, reaplicamos a diferenciação. Se após a segunda diferenciação a série apresentar estacionariedade, temos uma integrada de ordem 2 e assim sucessivamente, ou seja, diferenciamos sucessivamente até tornar a série estacionária.</p>
+<p>Nos casos onde a série é estacionária sem diferenciação denomina-se I(O): estacionária em nível.</p>
+<p>Os modelos onde não há necessidade de integração, ou seja ARIMA (p,d,q), com d igual a zero, denomina-se ARMA.</p>
+</section>
+<section id="procedimento-box-jenkins" class="level3">
+<h3 class="anchored" data-anchor-id="procedimento-box-jenkins">Procedimento Box &amp; Jenkins:</h3>
+<p><strong>1. Identificação do modelo → Testes de raiz unitária (estacionariedade) e funções de autocorrelação</strong></p>
+<p>Os critérios de informação Akaike (AIC) e Bayesiano (BIC) são usados para avaliar e comparar modelos estatísticos em termos de sua capacidade de explicar a variação dos dados com a menor complexidade possível. Ambos os critérios levam em consideração o ajuste do modelo aos dados e a complexidade do modelo, mas diferem em como a complexidade do modelo é medida.</p>
+<p><span class="math display">\[AIC = −2 ln(L)/T + 2n/T\]</span></p>
+<p><span class="math display">\[BIC = −2ln(L)/T + n ln(T)/T\]</span></p>
+<p>Ambos os critérios são usados para escolher entre diferentes modelos com base em sua capacidade de explicar a variação dos dados com a menor complexidade possível. No geral, modelos com valores menores de AIC ou BIC são considerados melhores porque explicam os dados com menor número de parâmetros, o que sugere maior parcimônia e generalização para dados futuros.</p>
+<p><strong>2. Estimação → Estimamos várias estruturas (máxima verossimilhança)</strong></p>
+<p>A etapa de estimação na metodologia Box-Jenkins tem como objetivo estimar os parâmetros do modelo ARIMA selecionado na etapa de identificação. Existem diferentes métodos de estimação disponíveis, sendo os mais comuns o método de máxima verossimilhança (MLE) e o método de mínimos quadrados (MQ).</p>
+<p>O método de máxima verossimilhança é baseado na maximização da função de verossimilhança, que é a probabilidade dos dados observados serem gerados pelo modelo ARIMA estimado. Esse método busca encontrar os valores dos parâmetros que maximizam a verossimilhança dos dados. O método de mínimos quadrados, por sua vez, busca minimizar a soma dos quadrados dos resíduos do modelo ARIMA estimado.</p>
+<p><strong>3. Diagnóstico → Verificar se os resíduos são RB (ruído branco).</strong></p>
+<p>O diagnóstico a partir do ruído branco é uma técnica utilizada na etapa de diagnóstico da metodologia Box-Jenkins para avaliar a adequação do modelo ARIMA aos dados observados. O ruído branco é uma série temporal ideal que é usada como referência para avaliar a aleatoriedade e a independência dos resíduos do modelo. A ideia é que se os resíduos do modelo forem semelhantes ao ruído branco, eles serão aleatórios e independentes e não apresentarão padrões sistemáticos de autocorrelação ou heterocedasticidade. Caso contrário, se os resíduos apresentarem padrões sistemáticos, isso pode indicar que o modelo não é adequado e precisa ser refinado.</p>
+<!--
+FAZER UMA AUTOMAÇÃO NO PROCESSO DE IDENTIFICAÇÃO DE RAÍZ UNITÁRIA
+
+IF 
+-->
+</section>
+<section id="determinação-do-parâmetros-ar-e-ma" class="level3">
+<h3 class="anchored" data-anchor-id="determinação-do-parâmetros-ar-e-ma">Determinação do parâmetros AR e MA</h3>
+<p>Para a determinação dos parâmetros a regra principal é estimar o melhor ajuste com o menor número de parâmetros, pois teremos um modelo mais simples com maior capacidade de generealização.</p>
+</section>
+</section>
+<section id="divisão-entre-amostra-de-treino-e-teste" class="level2">
+<h2 class="anchored" data-anchor-id="divisão-entre-amostra-de-treino-e-teste">Divisão entre amostra de treino e teste</h2>
+<p>Não existe uma divisão exata ou correta para determinar o horizonte de treinamento e teste do modelo. Em geral, é comum utilizar entre 70% e 80% dos dados para o treinamento e o restante para o teste. Entretanto, essa determinação é, em grande parte, empírica e depende de fatores como a própria aplicação, a disponibilidade dos dados na série histórica e o horizonte de previsão.</p>
+<p><br></p>
+<div class="text-center">
+<p><a href="favorita_sales.html"> <button class="btn btn-block btn-primary" type="button">Acesse aqui a previsão de demanda</button> </a></p>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
